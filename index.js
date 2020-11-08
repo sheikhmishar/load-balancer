@@ -145,7 +145,7 @@ const findSubsAddr = subsName => {
   return null
 }
 
-let index = 0
+let currentUpstream = 0
 /** @type {Express.RequestHandler} */
 const loadBalancer = (req, res, next) => {
   lbDebug(req.originalUrl)
@@ -153,10 +153,10 @@ const loadBalancer = (req, res, next) => {
   // const subdomain = req.subdomains[0]
   // proxyMiddlewares[findSubsAddr(subdomain)].middleware(req, res, next)
 
-  const upstreamId = Object.keys(subsTracker),
-    upstream = upstreamId[index++ % upstreamId.length]
+  const upstreamIds = Object.keys(subsTracker),
+    upstreamId = upstreamIds[currentUpstream++ % upstreamIds.length]
 
-  if (upstream) subsTracker[upstream].proxyMiddleware(req, res, next)
+  if (upstreamId) subsTracker[upstreamId].proxyMiddleware(req, res, next)
   else res.status(500).json({ message: 'Upstream Not Found' })
 }
 lbApp.use(loadBalancer)
